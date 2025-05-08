@@ -25,6 +25,7 @@ public class TodoService {
     private final TodoRepository todoRepository;
     private final WeatherClient weatherClient;
 
+    @Transactional(readOnly = false) // 읽기 전용 취소
     public TodoSaveResponse saveTodo(AuthUser authUser, TodoSaveRequest todoSaveRequest) {
         User user = User.fromAuthUser(authUser);
 
