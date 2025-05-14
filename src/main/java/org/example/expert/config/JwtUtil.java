@@ -16,6 +16,12 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
+/**
+ * 클라이언트가 로그인하면 → 서버에서 JWT 토큰 발급
+ * JWT 생성 (createToken)
+ * JWT 파싱 (extractClaims)
+ * Bearer prefix 제거 (substringToken)
+* */
 @Slf4j(topic = "JwtUtil")
 @Component
 public class JwtUtil {
@@ -34,12 +40,13 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
+    // 토큰 생성 메서드 (사용자 정보 포함)
     public String createToken(Long userId, String email, UserRole userRole, String nickname) {
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .setSubject(String.valueOf(userId))
+                        .setSubject(String.valueOf(userId)) // 사용자 ID
                         .claim("email", email)
                         .claim("userRole", userRole)
                         .claim("nickname", nickname)
@@ -49,13 +56,14 @@ public class JwtUtil {
                         .compact();
     }
 
+    // Bearer 접두어 제거
     public String substringToken(String tokenValue) {
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
             return tokenValue.substring(7);
         }
         throw new ServerException("Not Found Token");
     }
-
+    // JWT에서 Claims 정보 추출
     public Claims extractClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
